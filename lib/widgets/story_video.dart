@@ -48,7 +48,7 @@ class StoryVideoState extends State<StoryVideo> {
 
   BetterPlayerController? _betterPlayerController;
 
-  Future<BetterPlayerController?> _initializePlayer() async {
+  Future<void> _initializePlayer() async {
     BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       widget.httpurl,
@@ -76,7 +76,24 @@ class StoryVideoState extends State<StoryVideo> {
       betterPlayerDataSource: dataSource,
     );
 
-    return _betterPlayerController;
+    _betterPlayerController!.addEventsListener((event) {
+      if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
+        widget.storyController?.play();
+      }
+    });
+
+    if (widget.storyController != null) {
+      _streamSubscription =
+          widget.storyController!.playbackNotifier.listen((playbackState) {
+        if (playbackState == PlaybackState.pause) {
+          _betterPlayerController?.pause();
+        } else {
+          _betterPlayerController?.play();
+        }
+      });
+    }
+
+    setState(() {});
   }
 
   @override
@@ -84,23 +101,7 @@ class StoryVideoState extends State<StoryVideo> {
     super.initState();
 
     widget.storyController!.pause();
-    _initializePlayer().then((value) {
-      if (value != null && value.isPlaying()!) {
-        widget.storyController!.play();
-      }
-      setState(() {});
-    });
-
-    if (widget.storyController != null) {
-      _streamSubscription =
-          widget.storyController!.playbackNotifier.listen((playbackState) {
-        if (playbackState == PlaybackState.pause) {
-          _betterPlayerController!.pause();
-        } else {
-          _betterPlayerController!.play();
-        }
-      });
-    }
+    _initializePlayer();
   }
 
   @override
