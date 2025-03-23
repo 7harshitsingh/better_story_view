@@ -75,7 +75,6 @@ class StoryVideoState extends State<StoryVideo> {
       ),
       betterPlayerDataSource: dataSource,
     );
-    setState(() {});
   }
 
   @override
@@ -83,8 +82,10 @@ class StoryVideoState extends State<StoryVideo> {
     super.initState();
 
     widget.storyController!.pause();
-    _initializePlayer();
-    widget.storyController!.play();
+    _initializePlayer().then((value) {
+      setState(() {});
+      widget.storyController!.play();
+    });
 
     if (widget.storyController != null) {
       _streamSubscription =
