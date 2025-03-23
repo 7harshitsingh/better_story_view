@@ -48,7 +48,7 @@ class StoryVideoState extends State<StoryVideo> {
 
   BetterPlayerController? _betterPlayerController;
 
-  Future<void> _initializePlayer() async {
+  Future<BetterPlayerController?> _initializePlayer() async {
     BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.network,
       widget.httpurl,
@@ -75,6 +75,8 @@ class StoryVideoState extends State<StoryVideo> {
       ),
       betterPlayerDataSource: dataSource,
     );
+
+    return _betterPlayerController;
   }
 
   @override
@@ -83,8 +85,10 @@ class StoryVideoState extends State<StoryVideo> {
 
     widget.storyController!.pause();
     _initializePlayer().then((value) {
+      if (value != null && value.isPlaying()!) {
+        widget.storyController!.play();
+      }
       setState(() {});
-      widget.storyController!.play();
     });
 
     if (widget.storyController != null) {
